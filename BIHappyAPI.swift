@@ -319,10 +319,14 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
         
         // Local development server.
         if (needToLogin()) {
-            //        let req = URLRequest(url: NSURL(string: "http://127.0.0.1:8000/?withPermissions=\(permissions.joined(separator: ","))") as! URL)
+            // translate our permissions
+            let permissions = permissions.joined(separator: ",")
+            
+            // Create LOCAL a URLRequest for handling the API
+            //let req = URLRequest(url: NSURL(string: "http://127.0.0.1:8000/?withPermissions=\(permissions.joined(separator: ","))") as! URL)
             
             // Create a URLRequest for handling the API
-            let req = URLRequest(url: NSURL(string: "\(apiURL)/user/login/withPermissions/\(permissions.joined(separator: ","))") as! URL)
+            let req = URLRequest(url: NSURL(string: "\(apiURL)/user/login/withPermissions/\(permissions)") as! URL)
 
             // Init a empty view controller for use of the blur and webview.
             let vc = UIViewController.init(nibName: nil, bundle: nil)
@@ -781,18 +785,25 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
         //                                                                                   YYYYMMDDHHIISS
         let validTo = UserDefaults.standard.value(forKey: "BIHappyAPIValid") as! String? ?? "00000000000000"
         let formatter = DateFormatter()
-        formatter.locale = NSLocale.current
-        formatter.dateFormat = "yyyyMMddHHmmss"
+            formatter.locale = NSLocale.current
+            formatter.dateFormat = "yyyyMMddHHmmss"
         
         if (formatter.string(from: Date()) < validTo) {
             // Seems valid. check & go.
-            let BIHappiTok = UserDefaults.standard.value(forKey: "BIHappyAPIToken") as! String? ?? "INVALID_TOKEN_FOR_USER" // Default api key...
+            let BIHappiTok = UserDefaults.standard.value(forKey: "BIHappyAPIToken") as! String? ?? "INVALID_TOKEN_FOR_USER" // Default api key?!
+            
+            // Check URL
             let checkAtURL = "\(apiURL)/check/token/token/\(BIHappiTok)"
+            
+            // Is the token still valid?, if not nothing will work!
             if (BIApiGetAsText(from: checkAtURL) == "VALID") {
+                
+                // no need for login
                 return false
             }
         }
         
+        // user must re-login
         return true
     }
 }
