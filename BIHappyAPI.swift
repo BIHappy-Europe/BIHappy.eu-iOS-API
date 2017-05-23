@@ -236,7 +236,7 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             guard let data = data, error == nil else { // if we got no data
                 // general error
-                self.BIHAPIPOSTData = ["Status": "Error: \(error)"]
+                self.BIHAPIPOSTData = ["Status": "Error: \(String(describing: error))"]
                 
                 // tell the loop that we got some data
                 self.BIHAPIPOSTGotData = true
@@ -326,7 +326,7 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
             //let req = URLRequest(url: NSURL(string: "http://127.0.0.1:8000/?withPermissions=\(permissions.joined(separator: ","))") as! URL)
             
             // Create a URLRequest for handling the API
-            let req = URLRequest(url: NSURL(string: "\(apiURL)/user/login/withPermissions/\(permissions)") as! URL)
+            let req = URLRequest(url: NSURL(string: "\(apiURL)/user/login/withPermissions/\(permissions)")! as URL)
 
             // Init a empty view controller for use of the blur and webview.
             let vc = UIViewController.init(nibName: nil, bundle: nil)
@@ -665,6 +665,52 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
         }
     }
     
+    /**
+     **BIHappy Forum**
+     
+     
+     All parameters are optional!
+     
+     - parameter sub: the subforum where you want to fetch the topics of
+     
+     - parameter topic: the topic where you want fetch the contents of
+     
+     - returns: a `Array<Any>` with the contents
+     */
+    public func loadForum(sub: String? = nil, topic: String? = nil) -> Array<Any> {
+        if (!BIHappyKeyRegistered) {
+            // register key (last, or default api key)
+            self.registerKEY(key: self.apiKEY)
+        }
+        
+        if (sub == nil && topic == nil) {
+            print("Load forum Subs")
+            let json = BIApiGetAsText(from: "\(self.apiURL)/forum/main")
+//            print(json)
+            let data = convertStringToDictionary(text: json)
+//            print(data)
+            return (data?["data"])! as! Array<Any>
+        } else if (sub != nil && topic == nil) {
+            print("Load Subs")
+            let json = BIApiGetAsText(from: "\(self.apiURL)/forum/sub/id/\(String(describing: sub))")
+            //            print(json)
+            let data = convertStringToDictionary(text: json)
+            //            print(data)
+            return (data?["data"])! as! Array<Any>
+        } else if (sub != nil && topic != nil) {
+            print("Load topic + reactions")
+            let json = BIApiGetAsText(from: "\(self.apiURL)/forum/topic/id/\(String(describing: topic))")
+            //            print(json)
+            let data = convertStringToDictionary(text: json)
+            //            print(data)
+            return (data?["data"])! as! Array<Any>
+        } else {
+            print("⚠ Invalid call")
+        }
+        return Array<Any>()
+        
+    }
+    
     public func webView(_ webView: UIWebView, didFailLoadWithError error: Error) {
         print("[WV] Wekit error: \(error.localizedDescription)")
         self.BIHappyToken     = "ERROR"
@@ -704,7 +750,7 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
                     }
                 }
             } else {
-                print("Unexpected error=\(error)")
+                print("Unexpected error=\(String(describing: error))")
                 self.BIHappyToken     = "ERROR"
                 self.BIHAPIisLoggedin = false
                 self.BIHAPILogin      = true
@@ -736,6 +782,10 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
     }
     
     private func BIApiGetAsText(from: String) -> String {
+        #if DEBUG
+            print("ℹ️️ Load URL: \(from)")
+        #endif
+        
         // if no key is registered, register last, or default api key!
         if (!BIHappyKeyRegistered) {
             // register key (last, or default api key)
