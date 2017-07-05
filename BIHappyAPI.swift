@@ -94,7 +94,7 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
 
     //TODO: Remove this...
     /**
-     The Action library (**Deprecated**)
+     The Action library (**Deprecated**) (**Removal in final version**)
      
      Translating actions to the correct URL for this api version
      */
