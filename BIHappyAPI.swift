@@ -30,29 +30,29 @@ import UIKit
  
  **Supported functions:** Login, Userlist, Profile images
  
-     let BIHappy = BIHappyAPI.sharedInstance
-         BIHappy.registerKEY("myAPIkeyGoesHere");
-         // In the API settings you can change Sandbox Mode
+ let BIHappy = BIHappyAPI.sharedInstance
+ BIHappy.registerKEY("myAPIkeyGoesHere");
+ // In the API settings you can change Sandbox Mode
  
-         // Ask via BIHappy.eu (default)
-         BIHappy.login(permissions: ["profile"]) { result in
-             if (result) {
-                 print("Welcome \(BIHappy.user)")
-             } else {
-                 print("Failed")
-             }
-         }
+ // Ask via BIHappy.eu (default)
+ BIHappy.login(permissions: ["profile"]) { result in
+ if (result) {
+ print("Welcome \(BIHappy.user)")
+ } else {
+ print("Failed")
+ }
+ }
  
-      // Native example (if default doesn't fit)
-      // (even the official app is using above example)
-      if (BIHappy.login(username: "Username",
-                        password: "Password)) {
-         let tok = BIHappy.grabToken(); // valid: 24h
-      }
+ // Native example (if default doesn't fit)
+ // (even the official app is using above example)
+ if (BIHappy.login(username: "Username",
+ password: "Password)) {
+ let tok = BIHappy.grabToken(); // valid: 24h
+ }
  
  **Please allow a connection to:** *https://www.bihappy.eu/api/001/\**
  */
-public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
+open class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
     /**
      This is the shared instance of the BIHappy API
      */
@@ -63,7 +63,7 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
      
      private override.
      */
-    private override init() {
+    fileprivate override init() {
         self.apiURL = "\(self.apiURL)/\(self.apiVer)"
     }
     
@@ -72,7 +72,7 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
      
      For registering your API Version.
      */
-    private let apiVer: String = "001"
+    fileprivate let apiVer: String = "001"
     
     /**
      The API KEY
@@ -83,22 +83,22 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
      
      *Please note:* Temporary key will be banned for **24h** after **5** calls.
      */
-    private var apiKEY: String = UserDefaults.standard.value(forKey: "BIHappyAPIKey") as! String? ?? "098f6bcd4621d373cade4e832627b4f6"
+    fileprivate var apiKEY: String = UserDefaults.standard.value(forKey: "BIHappyAPIKey") as! String? ?? "098f6bcd4621d373cade4e832627b4f6"
     
     /**
      The API URL
      
      defaults to: https://www.bihappy.eu/api/
      */
-    private var apiURL: String = "https://www.bihappy.eu/api"
-
+    fileprivate var apiURL: String = "https://www.bihappy.eu/api"
+    
     //TODO: Remove this...
     /**
-     The Action library (**Deprecated**) (**Removal in final version**)
+     The Action library (**Deprecated**)
      
      Translating actions to the correct URL for this api version
      */
-    private let actions: [String: String] = [
+    fileprivate let actions: [String: String] = [
         "login":            "/user/login", // + /withPermissions/requestedPermissions
         "logout":           "/user/logout",
         "session":          "/user/session", // Get session token
@@ -113,67 +113,67 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
     /**
      BIHappy API (POST) Do we got the data?
      */
-    private var BIHAPIPOSTGotData: Bool = false
+    fileprivate var BIHAPIPOSTGotData: Bool = false
     
     /**
      BIHappy API (POST) Which data?
      */
-    private var BIHAPIPOSTData: [String: String] = [:]
+    fileprivate var BIHAPIPOSTData: [String: String] = [:]
     
     /**
      BIHappy API (GET) Do we got the data?
      */
-    private var BIHAPIGETGotData: Bool = false
+    fileprivate var BIHAPIGETGotData: Bool = false
     
     /**
      BIHappy API (GET) Which data?
      */
-    private var BIHAPIGETData: [String: String] = [:]
+    fileprivate var BIHAPIGETData: [String: String] = [:]
     
     /**
      BIHappy API waiting for login?
      */
-    private var BIHAPILogin: Bool = false
+    fileprivate var BIHAPILogin: Bool = false
     
     /**
      BIHappy API is the login successfull?
      */
-    private var BIHAPIisLoggedin: Bool = false
+    fileprivate var BIHAPIisLoggedin: Bool = false
     
     /**
      BIHappy API token
      */
-    private var BIHappyToken: String = UserDefaults.standard.value(forKey: "BIHappyAPIToken") as! String? ?? "INVALID_TOKEN_FOR_USER"
+    fileprivate var BIHappyToken: String = UserDefaults.standard.value(forKey: "BIHappyAPIToken") as! String? ?? "INVALID_TOKEN_FOR_USER"
     
     /**
      BIHappy API use WKWebView? (default: true)
      */
-    private let useWKWebView: Bool = true
+    fileprivate let useWKWebView: Bool = true
     
     /**
      Had registered a key?
      */
-    private var BIHappyKeyRegistered: Bool = false
+    fileprivate var BIHappyKeyRegistered: Bool = false
     
     /**
      BIHappy API which user is logged in?
      */
-    public var user: String = UserDefaults.standard.value(forKey: "BIHappyAPIUser") as! String? ?? "None"
+    open var user: String = UserDefaults.standard.value(forKey: "BIHappyAPIUser") as! String? ?? "None"
     
     /**
      BIHappy API's NSCache for images
      */
-    private let BIHappyImageCache = NSCache<NSString, UIImage>()
+    fileprivate let BIHappyImageCache = NSCache<NSString, UIImage>()
     
     /**
      BIHappy API's Temporary Directory
      */
-    private let BIHappyTemporaryDirectory = NSTemporaryDirectory()
+    fileprivate let BIHappyTemporaryDirectory = NSTemporaryDirectory()
     
     /**
      BIHappy API's Integrated insecure characters (for URLs)
      */
-    private let BIHappyInsecureCharacters = [";", "/", "?", ":", "@", "=", "&", "\"", "<", ">", "#", "%", "{", "}", "|", "\\", "^", "~", "[", "]", "`", "$", "!", "*", "'", "(", ")", ","]
+    fileprivate let BIHappyInsecureCharacters = [";", "/", "?", ":", "@", "=", "&", "\"", "<", ">", "#", "%", "{", "}", "|", "\\", "^", "~", "[", "]", "`", "$", "!", "*", "'", "(", ")", ","]
     
     /**
      Translates JSON to a Dictionary
@@ -181,7 +181,7 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
      - parameter text: the plain text JSON String
      - returns: JSON translated to Dictionary
      */
-    private func convertStringToDictionary(text: String) -> [String: AnyObject]? {
+    fileprivate func convertStringToDictionary(_ text: String) -> [String: AnyObject]? {
         if let data = text.data(using: String.Encoding.utf8) {
             do {
                 return try JSONSerialization.jsonObject(with: data, options: []) as? [String:AnyObject]
@@ -192,7 +192,18 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
         return nil
     }
     
-    private func BIHAPIGet(action: String) -> [String: String] {
+    
+    /**
+     Load a url as GET
+     
+     - parameter url: the URL
+     - returns: page contents
+     */
+    @discardableResult open func BIHappyLoad(_ url: String) -> String {
+        return self.BIApiGetAsText(url)
+    }
+    
+    fileprivate func BIHAPIGet(_ action: String) -> [String: String] {
         // ?
         return ["GET": "GET"]
     }
@@ -204,11 +215,11 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
      - parameter post: data we'll need to send
      - returns: Array of data
      */
-    private func BIHAPIPost(action: String, post: [String: String]) -> [String: String] {
+    fileprivate func BIHAPIPost(_ action: String, post: [String: String]) -> [String: String] {
         // if no key is registered, register last, or default api key!
         if (!BIHappyKeyRegistered) {
             // register key (last, or default api key)
-            self.registerKEY(key: self.apiKEY)
+            self.registerKEY(self.apiKEY)
         }
         // print("URL=\(apiURL)\(apiKEY)\(actions[action]!)")
         
@@ -225,7 +236,7 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
         
         // Create the request
         var request = URLRequest(url: URL(string: "\(apiURL)\(apiKEY)\(actions[action]!)")!)
-
+        
         // Set HTTP Method to POST
         request.httpMethod = "POST"
         
@@ -258,7 +269,7 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
             let responseString = String(data: data, encoding: .utf8)
             
             // convert to [string: string]
-            self.BIHAPIPOSTData = self.convertStringToDictionary(text: responseString!)! as! [String : String]
+            self.BIHAPIPOSTData = self.convertStringToDictionary(responseString!)! as! [String : String]
             
             // tell the loop that we got some data
             self.BIHAPIPOSTGotData = true
@@ -281,7 +292,7 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
      
      - returns: UIImage
      */
-    private func screenShotMethod() -> UIImage {
+    fileprivate func screenShotMethod() -> UIImage {
         // get the key window's layer!
         let layer = UIApplication.shared.keyWindow!.layer
         
@@ -310,11 +321,11 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
      - parameter permissions: ...
      - returns: bool true/false
      */
-    public func login(permissions: [String], completionHandler: @escaping (Bool) -> ()) {
+    open func login(_ permissions: [String], completionHandler: @escaping (Bool) -> ()) {
         // if no key is registered, register last, or default api key!
         if (!BIHappyKeyRegistered) {
             // register key (last, or default api key)
-            self.registerKEY(key: self.apiKEY)
+            self.registerKEY(self.apiKEY)
         }
         
         // Local development server.
@@ -326,25 +337,25 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
             //let req = URLRequest(url: NSURL(string: "http://127.0.0.1:8000/?withPermissions=\(permissions.joined(separator: ","))") as! URL)
             
             // Create a URLRequest for handling the API
-            let req = URLRequest(url: NSURL(string: "\(apiURL)/user/login/withPermissions/\(permissions)")! as URL)
-
+            let req = URLRequest(url: URL(string: "\(apiURL)/user/login/withPermissions/\(permissions)")! as URL)
+            
             // Init a empty view controller for use of the blur and webview.
             let vc = UIViewController.init(nibName: nil, bundle: nil)
             
-                // we want a screenshot as background
-                vc.view.backgroundColor = UIColor(patternImage: screenShotMethod())
+            // we want a screenshot as background
+            vc.view.backgroundColor = UIColor(patternImage: screenShotMethod())
             
             // init UIBlurEffect
             let blurEffect = UIBlurEffect(style: UIBlurEffectStyle.extraLight)
             
             // set the blur
             let blurEffectView = UIVisualEffectView(effect: blurEffect)
-                blurEffectView.frame = vc.view.bounds
-                blurEffectView.alpha = 0.5
-                blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            blurEffectView.frame = vc.view.bounds
+            blurEffectView.alpha = 0.5
+            blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
             
-                // and we append a blur effect to the background
-                vc.view.addSubview(blurEffectView)
+            // and we append a blur effect to the background
+            vc.view.addSubview(blurEffectView)
             
             // What do we want for our webview.
             
@@ -371,51 +382,51 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
                 // Init the WKWebView
                 let wk = WKWebView.init(frame: CGRect(x: x, y: y, width: width, height: height))
                 
-                    // Load a HTMLString (when the users see 'loading'
-                    wk.loadHTMLString("<center><h1>Loading...</h1></center>", baseURL: nil)
+                // Load a HTMLString (when the users see 'loading'
+                wk.loadHTMLString("<center><h1>Loading...</h1></center>", baseURL: nil)
                 
-                    // Load the request for the API
-                    wk.load(req)
+                // Load the request for the API
+                wk.load(req)
                 
-                    // The screen isn't opaque
-                    wk.isOpaque = false
+                // The screen isn't opaque
+                wk.isOpaque = false
                 
-                    // The background is clear (transparent)
-                    wk.backgroundColor = UIColor.clear
+                // The background is clear (transparent)
+                wk.backgroundColor = UIColor.clear
                 
-                    // the delegate is BIHappyAPI
-                    wk.navigationDelegate = self
+                // the delegate is BIHappyAPI
+                wk.navigationDelegate = self
                 
-                    // Disable the scrolling
-                    wk.scrollView.isScrollEnabled = false
+                // Disable the scrolling
+                wk.scrollView.isScrollEnabled = false
                 
-                    // Add the WKWebView to our 'new' UIViewController
-                    vc.view.addSubview(wk)
+                // Add the WKWebView to our 'new' UIViewController
+                vc.view.addSubview(wk)
             } else {
                 // Init the UIWebView
                 
                 let wv = UIWebView.init(frame: CGRect(x: x, y: y, width: width, height: height))
                 
-                    // Load a HTMLString (when the users see 'loading'
-                    wv.loadHTMLString("<center><h1>Loading...</h1></center>", baseURL: nil)
+                // Load a HTMLString (when the users see 'loading'
+                wv.loadHTMLString("<center><h1>Loading...</h1></center>", baseURL: nil)
                 
-                    // Load the request for the API
-                    wv.loadRequest(req)
+                // Load the request for the API
+                wv.loadRequest(req)
                 
-                    // The screen isn't opaque
-                    wv.isOpaque = false
+                // The screen isn't opaque
+                wv.isOpaque = false
                 
-                    // The background is clear (transparent)
-                    wv.backgroundColor = UIColor.clear
+                // The background is clear (transparent)
+                wv.backgroundColor = UIColor.clear
                 
-                    // the delegate is BIHappyAPI
-                    wv.delegate = self
+                // the delegate is BIHappyAPI
+                wv.delegate = self
                 
-                    // Disable the scrolling
-                    wv.scrollView.isScrollEnabled = false
+                // Disable the scrolling
+                wv.scrollView.isScrollEnabled = false
                 
-                    // Add the UIWebView to our 'new' UIViewController
-                    vc.view.addSubview(wv)
+                // Add the UIWebView to our 'new' UIViewController
+                vc.view.addSubview(wv)
             }
             
             // Present our 'new' UIViewController
@@ -462,21 +473,21 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
      - parameter password: password
      - returns: bool true/false
      */
-    public func login(username: String, password: String) -> Bool {
+    open func login(_ username: String, password: String) -> Bool {
         // if no key is registered, register last, or default api key!
         if (!BIHappyKeyRegistered) {
             // register key (last, or default api key)
-            self.registerKEY(key: self.apiKEY)
+            self.registerKEY(self.apiKEY)
         }
         
-        let token = BIHAPIPost(action: "login", post: [
+        let token = BIHAPIPost("login", post: [
             "username": username,
             "password": password
             ])
         
         self.BIHappyToken = token["status"]!
         
-        if (self.isValidToken(token: token["status"]!)) {
+        if (self.isValidToken(token["status"]!)) {
             // token is valid
             return true
         } else {
@@ -495,7 +506,7 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
      - parameter token: token
      - returns: bool true/false
      */
-    private func isValidToken(token: String) -> Bool {
+    fileprivate func isValidToken(_ token: String) -> Bool {
         return (token != "ERROR" && token != "NONE" && token != "DENIED")
     }
     
@@ -504,16 +515,16 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
      
      - returns: token whenever it is valid or invalid!
      */
-    public func grabToken() -> String {
+    open func grabToken() -> String {
         // if no key is registered, register last, or default api key!
         if (!BIHappyKeyRegistered) {
             // register key (last, or default api key)
-            self.registerKEY(key: self.apiKEY)
+            self.registerKEY(self.apiKEY)
         }
         
         if (self.BIHAPILogin) {
             // ok
-            if (!self.isValidToken(token: self.BIHappyToken)) {
+            if (!self.isValidToken(self.BIHappyToken)) {
                 // Loading token...
                 // Please wait...
                 print("Something went wrong!")
@@ -533,11 +544,11 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
      - parameter forID: user id
      - parameter at: at which imageview?
      */
-    public func getProfileImage(forID: Int, at: UIImageView) {
+    open func getProfileImage(_ forID: Int, at: UIImageView) {
         // if no key is registered, register last, or default api key!
         if (!BIHappyKeyRegistered) {
             // register key (last, or default api key)
-            self.registerKEY(key: self.apiKEY)
+            self.registerKEY(self.apiKEY)
         }
         
         // define our image URL
@@ -617,7 +628,7 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
             catch { }
         }
     }
-
+    
     /**
      filter those nasty characters from url's
      
@@ -625,7 +636,7 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
      
      - returns: a clean string
      */
-    private func URLtoSafeName(url: String) -> String {
+    fileprivate func URLtoSafeName(_ url: String) -> String {
         // make the URL changeable
         var _changeable = url
         
@@ -650,7 +661,7 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
      
      - parameter key: your personal BIHappy API key
      */
-    public func registerKEY(key: String) -> Void {
+    open func registerKEY(_ key: String) -> Void {
         if (key != "") {
             if (key == "098f6bcd4621d373cade4e832627b4f6") {
                 print("[BIHappy API] WARNING: USING A DEVELOPER KEY, PLEASE REGISTER YOUR OWN KEY AT:")
@@ -661,7 +672,7 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
             self.BIHappyKeyRegistered = true
             UserDefaults.standard.set(key, forKey: "BIHappyAPIKey")
         } else {
-            self.registerKEY(key: "098f6bcd4621d373cade4e832627b4f6")
+            self.registerKEY("098f6bcd4621d373cade4e832627b4f6")
         }
     }
     
@@ -677,31 +688,31 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
      
      - returns: a `Array<Any>` with the contents
      */
-    public func loadForum(sub: String? = nil, topic: String? = nil) -> Array<Any> {
+    open func loadForum(_ sub: String? = nil, topic: String? = nil) -> Array<Any> {
         if (!BIHappyKeyRegistered) {
             // register key (last, or default api key)
-            self.registerKEY(key: self.apiKEY)
+            self.registerKEY(self.apiKEY)
         }
         
         if (sub == nil && topic == nil) {
             print("Load forum Subs")
-            let json = BIApiGetAsText(from: "\(self.apiURL)/forum/main")
-//            print(json)
-            let data = convertStringToDictionary(text: json)
-//            print(data)
+            let json = BIApiGetAsText("\(self.apiURL)/forum/main")
+            //            print(json)
+            let data = convertStringToDictionary(json)
+            //            print(data)
             return (data?["data"])! as! Array<Any>
         } else if (sub != nil && topic == nil) {
             print("Load Subs")
-            let json = BIApiGetAsText(from: "\(self.apiURL)/forum/sub/id/\(String(describing: sub))")
+            let json = BIApiGetAsText("\(self.apiURL)/forum/sub/id/\(String(describing: sub))")
             //            print(json)
-            let data = convertStringToDictionary(text: json)
+            let data = convertStringToDictionary(json)
             //            print(data)
             return (data?["data"])! as! Array<Any>
         } else if (sub != nil && topic != nil) {
             print("Load topic + reactions")
-            let json = BIApiGetAsText(from: "\(self.apiURL)/forum/topic/id/\(String(describing: topic))")
+            let json = BIApiGetAsText("\(self.apiURL)/forum/topic/id/\(String(describing: topic))")
             //            print(json)
-            let data = convertStringToDictionary(text: json)
+            let data = convertStringToDictionary(json)
             //            print(data)
             return (data?["data"])! as! Array<Any>
         } else {
@@ -711,21 +722,21 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
         
     }
     
-    public func webView(_ webView: UIWebView, didFailLoadWithError error: Error) {
+    open func webView(_ webView: UIWebView, didFailLoadWithError error: Error) {
         print("[WV] Wekit error: \(error.localizedDescription)")
         self.BIHappyToken     = "ERROR"
         self.BIHAPIisLoggedin = false
         self.BIHAPILogin      = true
     }
     
-    public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+    open func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         print("[WK] Wekit error: \(error.localizedDescription)")
         self.BIHappyToken     = "ERROR"
         self.BIHAPIisLoggedin = false
         self.BIHAPILogin      = true
     }
     
-    public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+    open func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         webView.evaluateJavaScript("document.body.style.background='transparent';")
         
         webView.evaluateJavaScript("window.BIHappyUsername") { username, error in
@@ -758,10 +769,10 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
         }
     }
     
-    public func webViewDidStartLoad(_ webView: UIWebView) {
+    open func webViewDidStartLoad(_ webView: UIWebView) {
     }
     
-    public func webViewDidFinishLoad(_ webView: UIWebView) {
+    open func webViewDidFinishLoad(_ webView: UIWebView) {
         webView.stringByEvaluatingJavaScript(from: "document.body.style.background='transparent';")
         
         let userName = webView.stringByEvaluatingJavaScript(from: "window.BIHappyUsername")
@@ -781,7 +792,13 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
         }
     }
     
-    private func BIApiGetAsText(from: String) -> String {
+    open func log(_ t: Any) {
+        #if DEBUG
+            print("ℹ️️ \(t)")
+        #endif
+    }
+    
+    fileprivate func BIApiGetAsText(_ from: String) -> String {
         #if DEBUG
             print("ℹ️️ Load URL: \(from)")
         #endif
@@ -789,7 +806,7 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
         // if no key is registered, register last, or default api key!
         if (!BIHappyKeyRegistered) {
             // register key (last, or default api key)
-            self.registerKEY(key: self.apiKEY)
+            self.registerKEY(self.apiKEY)
         }
         
         // if the string is a URL
@@ -811,22 +828,22 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
         }
     }
     
-    public func getAllusers() -> Array<Any> {
+    open func getAllusers() -> Array<Any> {
         // if no key is registered, register last, or default api key!
         if (!BIHappyKeyRegistered) {
             // register key (last, or default api key)
-            self.registerKEY(key: self.apiKEY)
+            self.registerKEY(self.apiKEY)
         }
         
-        let data = convertStringToDictionary(text: BIApiGetAsText(from: "\(self.apiURL)/user/list"))
+        let data = convertStringToDictionary(BIApiGetAsText("\(self.apiURL)/user/list"))
         return (data?["data"])! as! Array<Any>
     }
     
-    private func needToLogin() -> Bool {
+    open func needToLogin() -> Bool {
         // if no key is registered, register last, or default api key!
         if (!BIHappyKeyRegistered) {
             // register key (last, or default api key)
-            self.registerKEY(key: self.apiKEY)
+            self.registerKEY(self.apiKEY)
         }
         
         // [BIHappyAPIToken: xxxxxxxxxxxxxx]
@@ -835,8 +852,8 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
         //                                                                                   YYYYMMDDHHIISS
         let validTo = UserDefaults.standard.value(forKey: "BIHappyAPIValid") as! String? ?? "00000000000000"
         let formatter = DateFormatter()
-            formatter.locale = NSLocale.current
-            formatter.dateFormat = "yyyyMMddHHmmss"
+        formatter.locale = Locale.current
+        formatter.dateFormat = "yyyyMMddHHmmss"
         
         if (formatter.string(from: Date()) < validTo) {
             // Seems valid. check & go.
@@ -846,7 +863,7 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
             let checkAtURL = "\(apiURL)/check/token/token/\(BIHappiTok)"
             
             // Is the token still valid?, if not nothing will work!
-            if (BIApiGetAsText(from: checkAtURL) == "VALID") {
+            if (BIApiGetAsText(checkAtURL) == "VALID") {
                 
                 // no need for login
                 return false
@@ -868,12 +885,13 @@ public class BIHappyAPI: NSObject, UIWebViewDelegate, WKNavigationDelegate {
  **Version:** 0.0.1
  
  **Status:** Beta
-
+ 
  */
-public class BIHappyDataStore {
+open class BIHappyDataStore {
     static let sharedInstance = BIHappyDataStore()
     
-    public var currentUser: Any = ""
+    open var currentUser: Any = ""
     
-    private init () { }
+    fileprivate init () { }
 }
+
